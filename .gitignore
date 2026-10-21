@@ -1,0 +1,28 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django local database and media uploads
+db.sqlite3
+db.sqlite3-journal
+media/
+media_root/
+
+# Environment variables (NEVER commit secrets!)
+.env
+.env.local
+
+# Virtual Environments (Conda/venv/etc.)
+venv/
+env/
+.conda/
+
+# IDE configurations (VS Code, PyCharm, etc.)
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
