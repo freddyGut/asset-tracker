@@ -1,0 +1,6 @@
+Django>=5.0
+dj-database-url==3.1.2
+gunicorn
+Pillow
+psycopg[binary]
+whitenoise==6.12.0

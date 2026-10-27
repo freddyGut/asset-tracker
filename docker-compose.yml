@@ -1,0 +1,56 @@
+services:
+  # Defining database PostgreSQL container. 
+  db:
+    # Using the official image for PostgreSQL already set up
+    image: postgres:16
+    
+    # Creating the variables for accessing the database (FIXED: Added the missing "S")
+    environment:
+      - POSTGRES_DB=assettracker
+      - POSTGRES_USER=assettracker
+      - POSTGRES_PASSWORD=assettracker
+      
+    # If I turn off the container, I lose the data.
+    # I'm creating a volume (virtual hard disk) with a directory so all data (User, Location, Assets) are preserved.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      
+    # Waiting for the database to be ready before launching Django so no consistency problems and errors occur.
+    # This test check asks the database every 5s if it's ready.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assettracker -d assettracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Container that handles Python/Django
+  web:
+    # Read Dockerfile and build the image
+    build: .
+    
+    # Overrides CMD command given in the Dockerfile (since that file is optimized for production).
+    # Here, I'm forcing it to use the standard Django development server on 0.0.0.0:8000.
+    # Also, before starting the server, it runs migrations so data is consistent.
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    
+    # Maps the current physical directory to the "/app" directory in the container. 
+    # When I modify lines of code in VS Code, the container will read them in real-time.
+    volumes:
+      - .:/app
+      
+    # Port 8000 on my physical PC is mapped to port 8000 on the isolated container.
+    ports:
+      - "8000:8000"
+      
+    # Puts env variables (SECRET_KEY, DATABASE_URL) from the .env file, which is NOT tracked by Git.
+    env_file:
+      - .env
+      
+    # This container won't load until the db container passes its healthcheck and is working properly.
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Declaration of the persistent volume used by the database
+volumes:
+  postgres_data:
