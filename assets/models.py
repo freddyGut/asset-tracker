@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 
 
 class Category(models.Model):
@@ -134,6 +135,15 @@ class Asset(models.Model):
             self.tag = f"AST-{self.pk:06d}"
             #saves time
             super().save(update_fields=["tag"])
+
+
+    # When Django creates or updates an object, it looks for the get_absolut_url method
+    # By doing so, the user is redirected to the detail page of the asset, making
+    # the user experience more fluid (used by CreateView and UpdateView)
+    def get_absolute_url(self):
+        return reverse("assets:asset_detail", kwargs={"pk": self.pk})
+
+    
 
 
 class AssetHistory(models.Model):

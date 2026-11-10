@@ -1,7 +1,7 @@
 """
 Django settings for config project.
 
-Configurato per lo sviluppo locale e predisposto per la produzione (12-Factor App).
+Configured for local development and following production
 """
 
 import os
@@ -63,7 +63,10 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        # telling Django where to find shared templates
+        "DIRS": [BASE_DIR / "templates"],
+        # telling Django "if you don't find html file in the shared directory,
+        # go watch in every single template directory of every app".
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -76,6 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+
 
 
 # Database
@@ -112,9 +116,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, images)
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"  # Target of `collectstatic`
+STATIC_ROOT = BASE_DIR / "staticfiles" 
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Authentication flow
+LOGIN_URL = "accounts:login"
+# where to go after a successful login
+LOGIN_REDIRECT_URL = "assets:asset_list"
+# where to go after logout
+LOGOUT_REDIRECT_URL = "accounts:login"
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
