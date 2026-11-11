@@ -9,7 +9,7 @@ class AssetForm(forms.ModelForm):
 
     class Meta:
         model = Asset
-        # asset_tag is editable=False so it is excluded automatically
+        # tag is editable=False so it is excluded automatically
         # created_ad/updated_at are managed by Django
         fields = [
             "name",
@@ -27,8 +27,8 @@ class AssetForm(forms.ModelForm):
         # we can modify it to enhance the 
         widgets = {
             "purchase_date": forms.DateInput(attrs={"type":"date"}, format="%Y-%m-%d"),
-            "description": forms.TextArea(attrs={"rows": 3}),
-            "notes": forms.TextArea(attrs={"rows": 3}),
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "notes": forms.Textarea(attrs={"rows": 3}),
         }
 
 

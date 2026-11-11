@@ -1,0 +1,28 @@
+<!--tells the Django Template Engine that this file is not independent, but inherits the structure defined in
+the base.html file. The content of this file will be inserted in the blocks defined in the base.html file-->
+{% extends "base.html" %}
+
+<!--overrides the <title> tag setting a new title for the page-->
+{% block title %}Log in · Asset Tracker{% endblock %}
+
+<!-- This page replaces the content block from base.html. -->
+{% block content %}
+<div class="card narrow">
+  <h1>Log in</h1>
+  <form method="post">
+    <!--mandatory for post forms. It generates a hidden field contaning an alphanumerical code.
+    Server-side, Django verifies whether the code matches the one generated for this specific session-->
+    {% csrf_token %}
+    <!--prints form field (username, password) sent from the View. Every field is wrapped around a div tag-->
+    {{ form.as_div }}
+    <!--very important for the user-experience (UX). 
+    Se l'utente prova ad accedere ad una pagina protetta (come assets/new/), il LoginRequiredMixing lo reinderizzerà
+    a questa pagina, aggiungendo all'URL ?next=assets/new/. Questo campo cattura il valore di next e lo re-invia
+    insieme al form, permettendo a Django di reinderizzare l'utente alla pagina desiderato dopo il login, anziché 
+    portarlo alla homepage-->
+    {# Preserves the page the user originally wanted to visit #}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn">Log in</button>
+  </form>
+</div>
+{% endblock %}

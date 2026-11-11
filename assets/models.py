@@ -135,6 +135,12 @@ class Asset(models.Model):
             self.tag = f"AST-{self.pk:06d}"
             #saves time
             super().save(update_fields=["tag"])
+            AssetHistory.objects.create(
+                asset=self,
+                user=None,
+                event_type=AssetHistory.EventType.CREATED,
+                new_value=self.name[:255],
+            )  
 
 
     # When Django creates or updates an object, it looks for the get_absolut_url method

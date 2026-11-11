@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- children templates can ovverride this block and write their own title -->
+  <title>{% block title %}Asset Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="navbar">
+    <!-- generates a link to all the assets -->
+    <a class="brand" href="{% url 'assets:asset_list' %}">Asset Tracker</a>
+    <nav>
+        <!-- checks whether the users has authenticated -->
+      {% if user.is_authenticated %}
+        <a href="{% url 'assets:asset_list' %}">Assets</a>
+        <!-- dynamically prints the name of the logged user -->
+        <span class="user">{{ user.username }}</span>
+        <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+            <!-- the token is mandatory in every post form. it's a string that confirms that the request is actually from the website-->
+          {% csrf_token %}
+          <button type="submit" class="link-button">Log out</button>
+        </form>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- checks if the View has sent messages ("Asset saved", "Login error")-->
+    {% if messages %}
+      <ul class="messages">
+        <!-- iterates the messages list -->
+        {% for message in messages %}
+            <!--messages.tags fetches the message tag (like 'success', 'error') and uses it as a CSS class to paint the pop-up -->
+          <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <!--here is where all the data processed by Views is actually sent by the children templates-->
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
