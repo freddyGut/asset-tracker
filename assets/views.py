@@ -1,16 +1,18 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
-from .forms import AssetFilterForm, AssetForm
+from .forms import AssetFilterForm, AssetForm, AssetLimitedForm
 from .models import Asset, AssetHistory
 from .services import log_asset_changes
 
 
-class AssetListView(LoginRequiredMixin, ListView):
+class AssetListView(PermissionRequiredMixin, ListView):
+    permission_required = "assets.view_asset"
+    
     model = Asset
     context_object_name = "assets"  # template variable name (default: object_list)
     paginate_by = 20
@@ -56,7 +58,9 @@ class AssetListView(LoginRequiredMixin, ListView):
 
 
 
-class AssetDetailView(LoginRequiredMixin, DetailView):
+class AssetDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "assets.view_asset"
+
     model = Asset
     queryset = Asset.objects.select_related("category", "location", "assigned_to")
 
@@ -67,7 +71,9 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         return context
         
 
-class AssetCreateView(LoginRequiredMixin, CreateView):
+class AssetCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "assets.add_asset"
+
     model = Asset
     form_class = AssetForm
 
@@ -82,9 +88,16 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
         return response
 
     
-class AssetUpdateView(LoginRequiredMixin, UpdateView):
+class AssetUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "assets.change_asset"
+
     model = Asset
-    form_class = AssetForm
+    
+    def get_form_class(self):
+        if self.request.user.has_perm("assets.change_asset_details"):
+            return AssetForm
+        else:
+            return AssetLimitedForm
 
     def form_valid(self, form):
         # Validation has already written the new values into self.object (in memory),
@@ -97,7 +110,9 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, f"Asset {self.object.tag} updated")
         return response
 
-class AssetDeleteView(LoginRequiredMixin, DeleteView):
+class AssetDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "assets.delete_asset"
+
     model = Asset
     success_url = reverse_lazy("assets:asset_list")
 

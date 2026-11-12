@@ -25,7 +25,7 @@ services:
     build: .
 
     # Development override of the Dockerfile CMD (gunicorn): runserver reloads on code changes
-    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate --noinput && python manage.py setup_roles && python manage.py runserver 0.0.0.0:8000"
 
     # Mounts the source code so edits in VS Code are visible inside the container immediately
     volumes:

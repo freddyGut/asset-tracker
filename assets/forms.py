@@ -52,3 +52,19 @@ class AssetFilterForm(forms.Form):
         choices = [("", "All statuses"), *Asset.Status.choices],
         required = False
     )
+
+
+class AssetLimitedForm(forms.ModelForm):
+    """Form for users who may only edit certain fields of an assert"""
+
+    class Meta:
+        model = Asset
+        fields = [
+            "status",
+            "assigned_to",
+            "notes",
+            "location",
+        ]
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }

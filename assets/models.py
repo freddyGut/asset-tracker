@@ -119,6 +119,9 @@ class Asset(models.Model):
         verbose_name = "asset"
         verbose_name_plural = "assets"
         ordering = ["-created_at"]
+        permissions = [
+            ("change_asset_details", "Can change all asset fields")
+        ]
 
     def __str__(self):
         return f"{self.tag or '—'} · {self.name}"

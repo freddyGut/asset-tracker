@@ -23,4 +23,5 @@ USER appuser
 # Railway provides the port in the PORT variable; 8000 is the local default.
 CMD sh -c "python manage.py migrate --noinput && \
            python manage.py collectstatic --noinput && \
+           python manage.py setup_roles && \
            exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000}"

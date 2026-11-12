@@ -5,7 +5,9 @@
 {% block content %}
 <div class="page-header">
   <h1>Assets</h1>
-  <a class="btn" href="{% url 'assets:asset_create' %}">+ New asset</a>
+  {% if perms.assets.add_asset %}
+    <a class="btn" href="{% url 'assets:asset_create' %}">+ New asset</a>
+  {% endif %}
 </div>
 
 <form method="get" class="card filters">
