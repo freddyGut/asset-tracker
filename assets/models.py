@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.urls import reverse
 
 
@@ -49,8 +48,8 @@ class Location(models.Model):
         return " > ".join(reversed(parts))
 
     def clean(self):
-        # Prevents loops in the hierarchy (a location cannot be
-        # a parent of itself or of its ancestor).
+        # Prevents loops in the hierarchy: a location cannot be
+        # its own parent or the parent of one of its ancestors.
         node = self.parent
         while node is not None:
             if node.pk == self.pk:
@@ -71,7 +70,7 @@ class Asset(models.Model):
         "asset tag",
         max_length=20,
         unique=True,
-        null=True, #value assigned after registering the asset in the database
+        null=True,  # empty until the first save: the tag is derived from the primary key
         blank=True,
         editable=False,
     )
@@ -80,7 +79,7 @@ class Asset(models.Model):
     category = models.ForeignKey(
         Category,
         verbose_name="category",
-        on_delete=models.PROTECT, #does not delete the corresponding category record
+        on_delete=models.PROTECT,  # a category or location still in use cannot be deleted
         related_name="assets",
     )
     location = models.ForeignKey(
@@ -109,47 +108,41 @@ class Asset(models.Model):
         verbose_name="assigned to",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
-        related_name="assigned_assets", #ex: jonathan.assigned_assets.all()
+        on_delete=models.SET_NULL,  # deleting a user keeps the asset
+        related_name="assigned_assets",
     )
     notes = models.TextField("notes", blank=True)
     created_at = models.DateTimeField("created at", auto_now_add=True)
-    updated_at = models.DateTimeField("updated at", auto_now=True) #timestamp updates each time we make a change to the record
+    updated_at = models.DateTimeField("updated at", auto_now=True)
 
     class Meta:
         verbose_name = "asset"
         verbose_name_plural = "assets"
-        ordering = ["-created_at"] # descending
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.tag or '—'} · {self.name}"
 
     def save(self, *args, **kwargs):
-        #asset exists only as an object in RAM, not as a record in the database
-        #therefore, pk always evaluates none, and "creating" reminds us of this property  
-        creating = self.pk is None 
-        #field self.pk now changes with the pk assigned by the DBMS
+        # A new object has no primary key until it is inserted.
+        creating = self.pk is None
         super().save(*args, **kwargs)
-        #field self.tag is still empty. both conditions are true!
+        # The tag is built from the primary key, so it can only be set after the first save.
+        # The CREATED event is logged here so every entry point (views, admin, shell)
+        # produces it; the author is attached afterwards by the views/admin.
         if creating and not self.tag:
             self.tag = f"AST-{self.pk:06d}"
-            #saves time
             super().save(update_fields=["tag"])
             AssetHistory.objects.create(
                 asset=self,
                 user=None,
                 event_type=AssetHistory.EventType.CREATED,
                 new_value=self.name[:255],
-            )  
+            )
 
-
-    # When Django creates or updates an object, it looks for the get_absolut_url method
-    # By doing so, the user is redirected to the detail page of the asset, making
-    # the user experience more fluid (used by CreateView and UpdateView)
     def get_absolute_url(self):
+        """Detail page of the asset; used by CreateView and UpdateView as redirect target."""
         return reverse("assets:asset_detail", kwargs={"pk": self.pk})
-
-    
 
 
 class AssetHistory(models.Model):
@@ -176,8 +169,8 @@ class AssetHistory(models.Model):
     event_type = models.CharField(
         "event type", max_length=20, choices=EventType.choices
     )
-    #for computational reasons: O(1) (ex: if I have to fetch the old value)
-    #using a few extra bytes of memory for saving a lot of CPU operations
+    # Old and new values are stored as plain text on purpose: the history stays
+    # readable even if the referenced location or user is later renamed or deleted.
     old_value = models.CharField("old value", max_length=255, blank=True)
     new_value = models.CharField("new value", max_length=255, blank=True)
     timestamp = models.DateTimeField("timestamp", auto_now_add=True)
@@ -189,4 +182,3 @@ class AssetHistory(models.Model):
 
     def __str__(self):
         return f"{self.asset} · {self.get_event_type_display()} · {self.timestamp:%d/%m/%Y %H:%M}"
-

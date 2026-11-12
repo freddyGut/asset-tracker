@@ -1,13 +1,8 @@
-<!--associated with DeleteView-->
 {% extends "base.html" %}
 
 {% block title %}Delete {{ object.tag }} · Asset Tracker{% endblock %}
 
 {% block content %}
-<!--it applies rules of both the card class and the narrow class
-This approach is called Object-Oriented CSS, and divides the responsibility:
-- card handles colors, shadows, borders
-- narrow handles the structure, width, positioning-->
 <div class="card narrow">
   <h1>Delete asset</h1>
   <p>Are you sure you want to delete <strong>{{ object }}</strong>?

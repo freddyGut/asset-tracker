@@ -21,10 +21,8 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # decoupling
     path("accounts/", include("accounts.urls")),
     path("assets/", include("assets.urls")),
-    # redirect to assets
     path("", RedirectView.as_view(pattern_name="assets:asset_list", permanent=False)),
 
 ]

@@ -1,7 +1,8 @@
 """
-Django settings for config project.
+Django settings for the config project.
 
-Configured for local development and following production
+Configured for local development and for production: sensitive values
+and the database are read from environment variables.
 """
 
 import os
@@ -12,16 +13,16 @@ from django.core.exceptions import ImproperlyConfigured
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Off unless explicitly enabled: the safe default for production.
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# A missing key is a fatal error in production; a throwaway key is tolerated only in development.
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
-    if DEBUG: #i'm devoloping the software therefore DEBUG=True
+    if DEBUG:
         SECRET_KEY = "dev-only-insecure-key"
-    else: #the app is on the Internet
-        raise ImproperlyConfigured("The SECRET_KEY environment variable is required.") #fail-safe
+    else:
+        raise ImproperlyConfigured("The SECRET_KEY environment variable is required.")
 
 # Comma-separated lists, e.g. "localhost,127.0.0.1,myapp.up.railway.app"
 ALLOWED_HOSTS = [
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Must come right after SecurityMiddleware
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -63,10 +64,9 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # telling Django where to find shared templates
+        # Project-wide templates (base.html)
         "DIRS": [BASE_DIR / "templates"],
-        # telling Django "if you don't find html file in the shared directory,
-        # go watch in every single template directory of every app".
+        # Also look for templates inside each app's "templates" directory
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -83,7 +83,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
-# Falls back to SQLite so the project still runs outside Docker/Production.
+# Configured through DATABASE_URL; falls back to SQLite outside Docker/production.
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
@@ -118,14 +118,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, images)
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles" 
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"  
+STATICFILES_DIRS = [BASE_DIR / "static"]  # project-level static files
 
-# Authentication flow
+# Authentication flow (URL names, not paths)
 LOGIN_URL = "accounts:login"
-# where to go after a successful login
 LOGIN_REDIRECT_URL = "assets:asset_list"
-# where to go after logout
 LOGOUT_REDIRECT_URL = "accounts:login"
 
 STORAGES = {

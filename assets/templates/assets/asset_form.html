@@ -1,25 +1,15 @@
-<!--When using a class for the view like CreateView or UpdateView, the convention is to call its associated
-HTML file "<model_name>_form.html". In this case, the model is Asset-->
 {% extends "base.html" %}
 
-<!--object is passed only by the UpdateView. for the CreateView, object is empty
-if UpdateView, title is Edit Mac-01 (for example)
-if CreateView, title is New Asset-->
-<!--NOTE: ONE SINGLE TEMPLATE SERVES BOTH VIEWS!-->
+{# One template serves both CreateView and UpdateView: "object" is set only when editing #}
 {% block title %}{% if object %}Edit {{ object.tag }}{% else %}New asset{% endif %} · Asset Tracker{% endblock %}
 
 {% block content %}
 <div class="card">
-    <!--same logic for the h1 header-->
   <h1>{% if object %}Edit {{ object.tag }}{% else %}New asset{% endif %}</h1>
-  <!--form that creates or updates an asset. It is mandatory to use the POST method-->
   <form method="post">
     {% csrf_token %}
     {{ form.as_div }}
-    <!--sends the data to the server-->
     <button type="submit" class="btn">Save</button>
-    <!--if UpdateView, the button goes to the detail page of the asset
-    if CreateView,  the button goes to the general assets list-->
     <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'assets:asset_list' %}{% endif %}">Cancel</a>
   </form>
 </div>

@@ -4,33 +4,24 @@
 
 {% block content %}
 <div class="page-header">
-    <!--ex: MAC-01 · Macbook Pro-->
   <h1>{{ asset.tag }} · {{ asset.name }}</h1>
   <div>
-    <!--link to update the asset. it passes the primary key (pk) to the url-->
     <a class="btn" href="{% url 'assets:asset_update' asset.pk %}">Edit</a>
-    <!--link to delete the asset, painted in red-->
     <a class="btn btn-danger" href="{% url 'assets:asset_delete' asset.pk %}">Delete</a>
   </div>
 </div>
 
 <div class="card">
-    <!--using a Description List <dl> is semantically perfect for "Tag Value" couples.
-        It is more accessble to screen-readers and it is easier to make it responsive with CSS 
-        rather than using a table-->
   <dl class="details">
     <dt>Status</dt>
-    <!--dynamic badge-->
     <dd><span class="badge badge-{{ asset.status }}">{{ asset.get_status_display }}</span></dd>
     <dt>Category</dt><dd>{{ asset.category }}</dd>
     <dt>Location</dt><dd>{{ asset.location }}</dd>
-    <!--handling optional field with a default value-->
     <dt>Assigned to</dt><dd>{{ asset.assigned_to|default:"—" }}</dd>
     <dt>Serial number</dt><dd>{{ asset.serial_number|default:"—" }}</dd>
     <dt>Purchase date</dt><dd>{{ asset.purchase_date|default:"—" }}</dd>
     <dt>Purchase price</dt><dd>{{ asset.purchase_price|default:"—" }}</dd>
-    <!--the user fills the form and presses "a capo", the database saves it as "\n".
-    The |linebreakesbr translated the "\n" characters from the db into the <br> tag-->
+    {# linebreaksbr turns the newlines stored in the text into <br> #}
     <dt>Description</dt><dd>{{ asset.description|default:"—"|linebreaksbr }}</dd>
     <dt>Notes</dt><dd>{{ asset.notes|default:"—"|linebreaksbr }}</dd>
   </dl>
@@ -44,25 +35,18 @@
   <tbody>
     {% for entry in history %}
       <tr>
-        <!-- ex: 2026-11-10 16:30-->
         <td>{{ entry.timestamp|date:"Y-m-d H:i" }}</td>
-        <!-- shows the readable label of the event (ex: "Status changed")-->
         <td>{{ entry.get_event_type_display }}</td>
         <td>
-        <!--if there's an old values, it prints "old_value->new_value", else it just prints "new_value"
-        Here, &rarr is an HTML entity-->
           {% if entry.old_value %}{{ entry.old_value }} &rarr; {% endif %}{{ entry.new_value }}
         </td>
-        <!--prints the user that made the change, otherwise "-"-->
         <td>{{ entry.user|default:"—" }}</td>
       </tr>
-      <!--fallback if the asset has no history or has just been created-->
     {% empty %}
       <tr><td colspan="4" class="empty">No history yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>
 
-<!--closes the page and brings the user back to the list page-->
 <p><a href="{% url 'assets:asset_list' %}">&laquo; Back to the list</a></p>
 {% endblock %}

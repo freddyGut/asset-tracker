@@ -10,7 +10,7 @@ db.sqlite3-journal
 media/
 media_root/
 
-# Environment variables (NEVER commit secrets!)
+# Environment variables
 .env
 .env.local
 

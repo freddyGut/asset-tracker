@@ -5,7 +5,6 @@
 {% block content %}
 <div class="page-header">
   <h1>Assets</h1>
-  <!--link to create a new asset-->
   <a class="btn" href="{% url 'assets:asset_create' %}">+ New asset</a>
 </div>
 
@@ -13,7 +12,6 @@
   {{ filter_form.as_div }}
   <div class="filter-actions">
     <button type="submit" class="btn">Filter</button>
-    <!--resets the page without the GET parameters (empties the URL string) and shows all the assets-->
     <a href="{% url 'assets:asset_list' %}">Reset</a>
   </div>
 </form>
@@ -26,49 +24,30 @@
     </tr>
   </thead>
   <tbody>
-    <!--list passed by ListView-->
     {% for asset in assets %}
       <tr>
-        <!--prints the tag and makes it a clickable link to the detail page-->
         <td><a href="{{ asset.get_absolute_url }}">{{ asset.name }}</a></td>
-        <!--here we really feel the advantages of the select_related() method used in the View.
-        if we didn't, printing asset.category would have generated an SQL query for every single line!s -->
         <td>{{ asset.category }}</td>
         <td>{{ asset.location }}</td>
-        <!--using CSS to paint the status based on its value-->
         <td><span class="badge badge-{{ asset.status }}">{{ asset.get_status_display }}</span></td>
-        <!--template filter of the Django Template Engine (|default).
-        If the asset is not assigned to anyone, Django prints "-" instead of leaving it empty-->
         <td>{{ asset.assigned_to|default:"—" }}</td>
       </tr>
-    <!--the empty block automatically activates if the "assets" list is empty-->
     {% empty %}
       <tr><td colspan="5" class="empty">No assets found.</td></tr>
     {% endfor %}
   </tbody>
 </table>
 
-
-<!--if the ListView counts more records than the limit (paginated_by=20), it activates the pagination-->
 {% if is_paginated %}
   <nav class="pagination">
-    <!--if the user is not in Page 1, show "Previous" link-->
+    {# "querystring" keeps the active filters in the pagination links #}
     {% if page_obj.has_previous %}
-        <!--{%if querystring} puts filter data in the URL if the users actually filled the filter form-->
       <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
     {% endif %}
-    <!--text indicator of the current page (for example, Page 3 of 7)-->
     <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
-    <!--if there are other pages, show the "Next" link-->
     {% if page_obj.has_next %}
       <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next &raquo;</a>
     {% endif %}
   </nav>
 {% endif %}
 {% endblock %}
-
-<!-- These are two HTML entites, meaning special codes to print certain charactes that cannot be directly
- written in the HTML file because they would be interpreted wrongly, like the start or the end of an HTML tag.
-&laquo; = Left-Pointing Double Angle Quotation Mark (corresponds to <<)
-&raquo; Right-Pointing Double Angle Quotation Mark (corresponds to >>)
-They start with & and end with ; . This way, the browser is 100% sure about the rendering of the special character-->

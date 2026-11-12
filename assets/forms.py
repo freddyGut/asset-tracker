@@ -3,14 +3,13 @@ from django import forms
 from .models import Asset, Category, Location
 
 
-# form used by CreateView and UpdateView to create and update an asset
-# It is a ModelForm, so it collects data for a Model
 class AssetForm(forms.ModelForm):
+    """Form used by both CreateView and UpdateView."""
 
     class Meta:
         model = Asset
-        # tag is editable=False so it is excluded automatically
-        # created_ad/updated_at are managed by Django
+        # "tag" is editable=False and created_at/updated_at are automatic,
+        # so they are not part of the form.
         fields = [
             "name",
             "description",
@@ -23,17 +22,16 @@ class AssetForm(forms.ModelForm):
             "assigned_to",
             "notes",
         ]
-        # by default, all fields are text
-        # we can modify it to enhance the 
         widgets = {
+            # type="date" gives a native date picker; the format pre-fills it when editing.
             "purchase_date": forms.DateInput(attrs={"type":"date"}, format="%Y-%m-%d"),
             "description": forms.Textarea(attrs={"rows": 3}),
             "notes": forms.Textarea(attrs={"rows": 3}),
         }
 
 
-# Search/filter bar of the asset list. Data is sent via GET method
 class AssetFilterForm(forms.Form):
+    """Search/filter bar of the asset list, submitted via GET."""
 
     q = forms.CharField(
         required = False,
@@ -41,10 +39,8 @@ class AssetFilterForm(forms.Form):
         widget = forms.TextInput(attrs={"placeholder": "Tag, name or serial number"}),
     )
     category = forms.ModelChoiceField(
-        # the menu options are not fixed. Go pick them from the database in real-time
-        queryset = Category.objects.all(),
+        queryset = Category.objects.all(),  # options are read from the database at render time
         required = False,
-        # the first option of the menu, if user does not select anything
         empty_label = "All categories"
     )
     location = forms.ModelChoiceField(
@@ -53,7 +49,6 @@ class AssetFilterForm(forms.Form):
         empty_label = "All locations"
     )
     status = forms.ChoiceField(
-        #choices do not change over time so they are fixed
         choices = [("", "All statuses"), *Asset.Status.choices],
         required = False
     )
