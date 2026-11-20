@@ -18,7 +18,7 @@ RUN adduser --disabled-password --no-create-home appuser \
     && chown -R appuser /app
 USER appuser
 
-# On startup: apply migrations, collect static files for WhiteNoise, then start gunicorn.
+# On startup: apply migrations, collect static files for WhiteNoise, create groups then start gunicorn.
 # "exec" makes gunicorn the main process (PID 1) so it receives stop signals.
 # Railway provides the port in the PORT variable; 8000 is the local default.
 CMD sh -c "python manage.py migrate --noinput && \
