@@ -39,7 +39,7 @@
   <tbody>
     {% for entry in history %}
       <tr>
-        <td>{{ entry.timestamp|date:"Y-m-d H:i" }}</td>
+        <td>{{ entry.timestamp|date:"d/m/Y H:i" }}</td>
         <td>{{ entry.get_event_type_display }}</td>
         <td>
           {% if entry.old_value %}{{ entry.old_value }} &rarr; {% endif %}{{ entry.new_value }}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · Asset Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+</div>
+
+<div class="stats">
+  <div class="card stat"><span class="stat-value">{{ total_assets }}</span><span class="stat-label">Total assets</span></div>
+  <div class="card stat"><span class="stat-value">€ {{ total_value|default:0|floatformat:"2g" }}</span><span class="stat-label">Total value (purchase)</span></div>
+  <div class="card stat"><span class="stat-value">{{ in_use }}</span><span class="stat-label">In use</span></div>
+  <div class="card stat"><span class="stat-value">{{ in_maintenance }}</span><span class="stat-label">In maintenance</span></div>
+</div>
+
+<div class="card">
+  <h2>Assets by location</h2>
+  {% for row in by_location %}
+  <div class="bar-row">
+    <span class="bar-label {% if row.indent == 0 %}bar-label-root{% else %}bar-label-child{% endif %}"
+          style="padding-left: {{ row.indent }}px">
+      {% if row.indent > 0 %}↳ {% endif %}{{ row.name }}
+    </span>
+    <div class="bar"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+    <span class="bar-count">{{ row.total }}</span>
+  </div>
+  {% empty %}
+    <p class="empty">No locations yet.</p>
+  {% endfor %}
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h2>Assets by status</h2>
+    {% for row in by_status %}
+      <div class="bar-row">
+        <a class="bar-label" href="{% url 'assets:asset_list' %}?status={{ row.value }}">{{ row.label }}</a>
+        <div class="bar"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+        <span class="bar-count">{{ row.count }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2>Assets by category</h2>
+    {% for row in by_category %}
+      <div class="bar-row">
+        <a class="bar-label" href="{% url 'assets:asset_list' %}?category={{ row.pk }}">{{ row.name }}</a>
+        <div class="bar"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+        <span class="bar-count">{{ row.count }}</span>
+      </div>
+    {% empty %}
+      <p class="empty">No categories yet.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<h2>Recent activity</h2>
+<table>
+  <thead>
+    <tr><th>Date</th><th>Asset</th><th>Event</th><th>Change</th><th>By</th></tr>
+  </thead>
+  <tbody>
+    {% for entry in recent_events %}
+      <tr>
+        <td>{{ entry.timestamp|date:"d/m/Y H:i" }}</td>
+        <td><a href="{{ entry.asset.get_absolute_url }}">{{ entry.asset.name }}</a></td>
+        <td>{{ entry.get_event_type_display }}</td>
+        <td>{% if entry.old_value %}{{ entry.old_value }} &rarr; {% endif %}{{ entry.new_value }}</td>
+        <td>{{ entry.user|default:"—" }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="empty">No activity yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

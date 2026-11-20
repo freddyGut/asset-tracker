@@ -23,6 +23,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("assets/", include("assets.urls")),
-    path("", RedirectView.as_view(pattern_name="assets:asset_list", permanent=False)),
-
+    path("", include("dashboard.urls")),
 ]

@@ -50,3 +50,17 @@ th { background: #e4e7eb; }
 .message.error { background: #fee2e2; }
 
 .pagination { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+.stat { display: flex; flex-direction: column; margin-bottom: 0; }
+.stat-value { font-size: 1.75rem; font-weight: 700; }
+.stat-label { color: #6b7280; font-size: 0.85rem; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+
+.bar-row { display: grid; grid-template-columns: 220px 1fr 40px; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+.bar-label-root { font-weight: 600; color: #111827; }
+.bar-label-child { color: #4b5563; font-size: 0.92rem; }
+.bar { background: #e4e7eb; border-radius: 999px; height: 10px; overflow: hidden; }
+.bar-fill { background: #1d4ed8; height: 100%; }
+.bar-count { text-align: right; font-weight: 600; }

@@ -123,7 +123,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]  # project-level static files
 
 # Authentication flow (URL names, not paths)
 LOGIN_URL = "accounts:login"
-LOGIN_REDIRECT_URL = "assets:asset_list"
+LOGIN_REDIRECT_URL = "dashboard:index"
 LOGOUT_REDIRECT_URL = "accounts:login"
 
 STORAGES = {
